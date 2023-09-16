@@ -1,0 +1,35 @@
+Home.js
+Error
+
+Patient  ✓
+->LoginForm
+->PatientPage 
+->getpatient 
+->changepassword 
+->editpatient 
+->register
+
+Admin ✓
+->Admin page
+->adminLogin
+->adminregister
+->adminheader
+->activepatients
+->activenurses
+->device
+->Assignment
+->getadmin
+->editadmin
+->changeadminpassword
+->adddevice
+
+
+Nurse ✓
+->LoginForm 
+->register 
+->nursepage 
+->getnurse 
+->changenursepassword
+->editnurse
+->nurseedit
+-->testpatient  
