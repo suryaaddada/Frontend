@@ -83,24 +83,18 @@ function Home() {
                   Our advanced devices and qualified nurses ensure faster, 100% accurate, and correct results.
                   Experience the future of COVID testing with us and stay one step ahead in the fight against the pandemic.
                 </p>
-                <br />
+                <br /> <br /><br /> <br /> <br /><br />
                 
                 <button
                   type="submit"
                   onClick={() => navigate('log')}
                   className="btn btn-primary d-block mx-auto"
                 >
-                  Login <IoMdLogIn />
+                To Explore <IoMdLogIn />
                 </button>
               </div>
 
-              <center>
-                <br /> <br /><br />
-                <h5>For Admin only</h5>
-                <button type="submit" style={{ textAlign: "right" }} className="btn btn-info" onClick={() => navigate('Login')}>
-                  Admin <RiAdminFill />
-                </button>
-              </center>
+             
             </div>
           </div>
         </div>
@@ -110,8 +104,8 @@ function Home() {
       <footer
         style={{
           backgroundColor: '#f8f9fa',
-          padding: '20px 0',
-          marginBottom: '2px'
+          padding: '0px 0',
+          marginBottom: '1px'
         }}
       >
         <div className="container">

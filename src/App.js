@@ -104,6 +104,21 @@ function App() {
                                       <Route path="passchangenurse" element={<ChangeNursePassword/>}/>
 
                          </Route>
+                         <Route path='adminpage' element={<Admin/>}>
+           
+          
+                                      <Route path="getpatient"  element={<Apple/>}/> {/* !  */}
+                                      <Route path="getAdmin" element={<GetAdmin/>}/>
+                                      <Route path="editadmin" element={<EditAdmin/>}/>
+                                      <Route path="passchangeadmin" element={<ChangeAdminPassword/>}/>
+                                      <Route path="actpatient" element={<ActivePatients/>}/>
+                                      <Route path="actnurse" element={<ActiveNurses/>}/>
+                                      <Route path="device" element={<Device/>}/>
+                                      <Route path="addDevice" element={<AddDevice/>}/>
+                                      <Route path="assign" element={<Assignment/>}/>
+                                      <Route path="nurseRegister" element={<NurseRegister/>} />
+     
+                         </Route> 
         </Route> 
         
        <Route path="*" element={<Error />}></Route>

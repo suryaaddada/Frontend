@@ -4,8 +4,6 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nurseemail, setNurseEmail] = useState("");
-  const [nursepassword, setNursePassword] = useState("");
   const [user, setUser] = useState("");
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -21,46 +19,93 @@ function LoginForm() {
     setPassword(e.target.value);
   };
 
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const requestBody = user === 'patient' ? { email, password } : { email: nurseemail, password: nursepassword };
-
-
-    fetch(`https://localhost:44331/api/Login/${user}`,{
+  const handleUserChange = async () => {
+    const data={email,password};
+    const patientResponse = await fetch(`https://localhost:44331/api/Login/patientCredentials`,{
       method:'POST',
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody),
-    })
-      .then((response) => {
-        console.log("hi");
-        return response.json()})
-      .then((data) => {
-       try{
-          if (user === "patient") {
-            sessionStorage.setItem("patienttoken",data.token);
-            navigate(`patientpage?id=${data.id}`);
-          } else {
-            sessionStorage.setItem("nursetoken",data.token);
-            navigate(`nursepage?id=${data.id}`);
-          }
-          setIsLoggedIn(true);
-          sessionStorage.setItem("isLoggedIn", "true");
-        }
-        catch {
-          setError("Invalid email or password");
-          setShowErrorMessage(true);
-        }
-      })
-      .catch(() => {
-        setError("Error occurred while logging in. Please try again later.");
-        setShowErrorMessage(true);
-      });
+      body: JSON.stringify(data),
+    });
+    const nurseResponse = await fetch(`https://localhost:44331/api/Login/nurseCredentials`,{
+      method:'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const isPatient = await patientResponse.json();
+    const isNurse = await nurseResponse.json();
+    console.log("Called");
+
+    if (isPatient) {
+      setUser('patient');
+    } else if (isNurse) {
+      setUser('nurse');
+    } else {
+      setUser('admin');
+     
+    }
   };
 
+  useEffect(() => {
+   
+    if (user) {
+      fetchUserLogin();
+    }
+  }, [user]);
+
+  const fetchUserLogin = async () => {
+    try {
+      const response = await fetch(`https://localhost:44331/api/Login/${user}`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (user === "patient") {
+          sessionStorage.setItem("patienttoken", data.token);
+          navigate(`patientpage?id=${data.id}`);
+        } 
+        else   if (user === "nurse") {
+          sessionStorage.setItem("nursetoken", data.token);
+          navigate(`nursepage?id=${data.id}`);
+        }
+        else{
+          sessionStorage.setItem("admintoken", data.token);
+         
+          navigate(`adminpage?id=${data.id}`);
+        }
+
+        setIsLoggedIn(true);
+        sessionStorage.setItem("isLoggedIn", "true");
+      } else {
+        setError("Invalid email or password");
+        setShowErrorMessage(true);
+      }
+    } catch {
+      setError("Error occurred while logging in. Please try again later.");
+      setShowErrorMessage(true);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+   
+
+   
+    await handleUserChange();
+  };
   
+  
+
   useEffect(() => {
     let timer;
 
@@ -97,114 +142,61 @@ function LoginForm() {
           <p className="message">
             We are here to help you manage COVID testing and provide the best care. Our highly trained staff is dedicated to your well-being. You can trust us to guide you through this challenging time.
           </p>
-          <div className="row">
-            <div className="col-md-6">
-              <form onSubmit={handleSubmit}>
-                {showErrorMessage && (
-                  <div className="alert alert-danger mt-3" role="alert">
-                    {error}
-                  </div>
-                )}
-                 <h6 className="mb-4 text-center text-white" style={{ backgroundColor: 'gray', padding: '10px' }}>Patient Login</h6>
-                <div className="form-group">
-                  <input
-                    type="email"
-                    className="form-control"
-                    value={email}
-                    onChange={handleEmailChange}
-                    placeholder="Enter the Email"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    placeholder="Enter the Password"
-                    required
-                  />
-                </div>
-                <div className="d-grid gap-2">
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-block"
-                    onClick={() => setUser('patient')}
-                  >
-                    Login
-                  </button>
-                  <input
-                    type="reset"
-                    className="btn btn-danger btn-block"
-                    value="Reset"
-                    onClick={handleReset}
-                  />
-                 
-                </div>
-              </form>
+          <form onSubmit={handleSubmit}>
+            {showErrorMessage && (
+              <div className="alert alert-danger mt-3" role="alert">
+                {error}
+              </div>
+            )}
+            <div className="form-group">
+              <input
+                type="email"
+                className="form-control"
+                value={email}
+                onChange={handleEmailChange}
+                placeholder="Enter the Email"
+                required
+              />
             </div>
-            <div className="col-md-6">
-              <form onSubmit={handleSubmit}>
-                {showErrorMessage && (
-                  <div className="alert alert-danger mt-3" role="alert">
-                    {error}
-                  </div>
-                )}
-                <h6 className="mb-4 text-center text-white" style={{ backgroundColor: 'gray', padding: '10px' }}>Nurse Login</h6>
-                <div className="form-group">
-                  <input
-                    type="email"
-                    className="form-control"
-                    value={nurseemail}
-                    onChange={(e)=>setNurseEmail(e.target.value)} 
-                    placeholder="Enter the Email"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={nursepassword}
-                    onChange={(e)=>setNursePassword(e.target.value)}
-                    placeholder="Enter the Password"
-                    required
-                  />
-                </div>
-                <div className="d-grid gap-2">
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-block"
-                    onClick={() => setUser('nurse')}
-                  >
-                    Login
-                  </button>
-                  <input
-                    type="reset"
-                    className="btn btn-danger btn-block"
-                    value="Reset"
-                    onClick={handleReset}
-                  />
-                 
-                </div>
-              </form>
+            <div className="form-group">
+              <input
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder="Enter the Password"
+                required
+              />
             </div>
-          </div>
-          <h6 className="mt-3">
-            Don't have a patient account?{" "}
-            <a href="" onClick={handleRegisterClick}>
-              Register
-            </a>{" "}
-            here.
-          </h6>
-          <button
-                    type="button"
-                    className="btn btn-info btn-block"
-                    onClick={(e) => navigate('/')}
-                  >
-                   Go To Home Page
-                  </button>
+
+            <div className="d-grid gap-2">
+              <button type="submit" className="btn btn-primary btn-block">
+                Login
+              </button>
+
+              <input
+                type="reset"
+                className="btn btn-danger btn-block"
+                value="Reset"
+                onClick={handleReset}
+              />
+
+              <button
+                type="button"
+                className="btn btn-info btn-block"
+                onClick={() => navigate('/')}
+              >
+                Home
+              </button>
+            </div>
+            <h6 className="mt-3">
+              Don't have an Patient Account?{" "}
+              <a href="" onClick={handleRegisterClick}>
+                Register
+              </a>{" "}
+              here.
+            </h6>
+          </form>
         </div>
       )}
       <Outlet />

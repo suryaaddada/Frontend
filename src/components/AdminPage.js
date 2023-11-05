@@ -51,7 +51,7 @@ export const Admin = () => {
       sessionStorage.removeItem("adminName"); 
       sessionStorage.removeItem('admintoken');
       setTimeout(() => {
-        navigate("/login");
+        navigate("/log"); 
         window.location.reload();
       }, 0);
     }
